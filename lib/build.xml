@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="sdp-console" default="main">
+<property file="/opt/pvcs/ant/properties/secure.properties"/>
+<echo message="${build.working.directory}"/>
+	<property file="${build.working.directory}/build.properties"/>
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+		<classpath>
+			<pathelement location="C:\opt\pvcs\ant-contrib\ant-contrib.jar"/>
+		</classpath>
+	</taskdef>
+	<!-- ######################################################################### -->
+	<target name="main">
+		<propertycopy name="library.target.hostlist" from="library.target.hostlist.${project.name}"/>
+		<echo>library.target.hostlist=${library.target.hostlist}</echo>
+		<propertycopy name="library.target.host.username" from="library.target.host.username.${project.name}"/>
+		<propertycopy name="library.target.host.password" from="library.target.host.password.${project.name}"/>
+		<propertycopy name="library.target.host.username" from="library.target.host.username.${project.name}"/>
+		<propertycopy name="library.target.path" from="library.target.path.${project.name}"/>
+		
+		<foreach list="${library.target.hostlist}" target="replaceLibs" param="library.target.host" inheritall="true" parallel="true"/>
+	</target>
+	<!-- ######################################################################### -->
+	<target name="replaceLibs">
+		<echo>Copying library files to host=[${library.target.host}] path=[${library.target.path}]</echo>
+		<sshexec host="${library.target.host}" trust="true" failonerror="true" username="${library.target.host.username}" password="${library.target.host.password}" command="rm -Rf ${library.target.path}/*.jar"/>
+		<foreach target="foreach.target" param="foreach.element" inheritall="true" parallel="true">
+			<path id="bpo.libs">
+				<fileset dir=".">
+					<include name="**/*.jar"/>
+				</fileset>
+			</path>
+		</foreach>
+		<sshexec host="${library.target.host}" trust="true" failonerror="true" username="${library.target.host.username}" password="${library.target.host.password}" command="chmod 777 ${library.target.path}/*.jar"/>
+	</target>
+	<!-- ######################################################################### -->
+	<target name="foreach.target">
+		<echo>Transferring file="${foreach.element}" to library target=${library.target.path}</echo>
+		<ant target="transferFile">
+			<property name="transferFile.sourceFilepath" value="${foreach.element}"/>
+			<property name="transferFile.host" value="${library.target.host}"/>
+			<property name="transferFile.targetDirectory" value="${library.target.path}"/>
+			<property name="transferFile.username" value="${library.target.host.username}"/>
+			<property name="transferFile.password" value="${library.target.host.password}"/>
+		</ant>
+	</target>
+	<!-- ######################################################################### -->
+	<!-- ######################################################################### -->
+	<target name="transferFile">
+		<echo>
+	Copying file=[${transferFile.sourceFilepath}]
+	to dir=[${transferFile.host}:${transferFile.targetDirectory}]
+	</echo>
+		<scp file="${transferFile.sourceFilepath}" trust="true" verbose="true" failonerror="true" todir="${transferFile.username}:${transferFile.password}@${transferFile.host}:${transferFile.targetDirectory}"/>
+	</target>
+</project>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_sdp-java" default="compile.module.sdp-java">
+	<property name="compiler.debug" value="on"/>
+	<property name="compiler.generate.no.warnings" value="off"/>
+	<property name="compiler.args" value=""/>
+	<property name="compiler.max.memory" value="128m"/>
+	<property file="build.properties"/>
+	<patternset id="ignored.files">
+		<exclude name="**/CVS/**"/>
+	</patternset>
+	<patternset id="library.patterns">
+		<include name="*.zip"/>
+		<include name="*.war"/>
+		<include name="*.ear"/>
+		<include name="*.jar"/>
+	</patternset>
+	<patternset id="compiler.resources">
+		<include name="**/?*.properties"/>
+		<include name="**/?*.xml"/>
+		<include name="**/?*.gif"/>
+		<include name="**/?*.png"/>
+		<include name="**/?*.jpeg"/>
+		<include name="**/?*.jpg"/>
+		<include name="**/?*.html"/>
+		<include name="**/?*.dtd"/>
+		<include name="**/?*.tld"/>
+		<include name="**/?*.ftl"/>
+	</patternset>
+	<echo message="ant.file.module_sdp-java=${ant.file.module_sdp-java}"/>
+	<dirname property="module.sdp-java.basedir" file="${ant.file.module_sdp-java}"/>
+	<property name="compiler.args.sdp-java" value="${compiler.args}"/>
+	<property name="sdp-java.output.dir" value="${module.sdp-java.basedir}"/>
+	<echo message="build.directory/tpa-lib=${build.directory}/lib"/>
+	<property name="tpa-lib.dir" value="${module.sdp-java.basedir}/lib"/>
+	<path id="sdp-java.module.bootclasspath">
+		<!-- Paths to be included in compilation bootclasspath -->
+	</path>
+	<path id="sdp-java.module.classpath">	
+	    <fileset dir="${tpa-lib.dir}">
+	       <include name="*.jar"/>
+	    </fileset>
+	</path>
+	<path id="sdp-java.runtime.module.classpath">
+		<pathelement location="${sdp-java.output.dir}"/>
+	    <fileset dir="${tpa-lib.dir}">
+	       <include name="*.jar"/>
+	    </fileset>
+	</path>
+	<patternset id="excluded.from.module.sdp-java">
+		<patternset refid="ignored.files"/>
+	</patternset>
+	<patternset id="excluded.from.compilation.sdp-java">
+		<patternset refid="excluded.from.module.sdp-java"/>
+	</patternset>
+	<path id="sdp-java.module.sourcepath">
+		<dirset dir="${module.sdp-java.basedir}">
+			<include name="src"/>
+		</dirset>
+	</path>
+	<target name="compile.module.sdp-java" depends="compile.module.sdp-java.production,compile.module.sdp-java.tests" description="Compile module sdp-java"/>
+	<target name="compile.module.sdp-java.production" description="Compile module sdp-java; production classes">
+		<mkdir dir="${sdp-java.output.dir}"/>
+		<javac destdir="${sdp-java.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${java16.home}/bin/javac">
+			<compilerarg line="${compiler.args.sdp-java}"/>
+			<bootclasspath refid="sdp-java.module.bootclasspath"/>
+			<classpath refid="sdp-java.module.classpath"/>
+			<src refid="sdp-java.module.sourcepath"/>
+			<patternset refid="excluded.from.compilation.sdp-java"/>
+		</javac>
+		<copy todir="${sdp-java.output.dir}">
+			<fileset dir="${module.sdp-java.basedir}/src">
+				<patternset refid="compiler.resources"/>
+				<type type="file"/>
+			</fileset>
+		</copy>
+		<jar destfile="${project.output.path}/${project.name}_${label}.jar" basedir="${sdp-java.output.dir}">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}"/>
+				<attribute name="Version" value="${label}"/>
+				<attribute name="Compiler" value="${java.version}"/>
+			</manifest>
+		</jar>
+	</target>
+	<!-- ########################################################################### -->
+	<target name="compile.module.sdp-java.tests" depends="compile.module.sdp-java.production" description="compile module sdp-java; test classes" unless="skip.tests"/>
+	<!-- ########################################################################### -->
+	<target name="clean.module.sdp-java" description="cleanup module">
+		<delete dir="${sdp-java.output.dir}"/>
+	</target>
+</project>

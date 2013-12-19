@@ -1,0 +1,5 @@
+<factorypath>
+    <factorypathentry kind="PLUGIN" id="oracle.eclipse.tools.weblogic" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="PLUGIN" id="oracle.eclipse.tools.sapphire.modeling" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="PLUGIN" id="oracle.eclipse.tools.sapphire.modeling.legacy" enabled="true" runInBatchMode="false"/>
+</factorypath>
